@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,27 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Caravan Trails custom colors
+				forest: {
+					DEFAULT: '#2D5238',
+					light: '#3A6A48',
+					dark: '#1E3925'
+				},
+				earth: {
+					DEFAULT: '#9C6644',
+					light: '#BD7B55',
+					dark: '#7A5036'
+				},
+				sunset: {
+					DEFAULT: '#E78A37',
+					light: '#F7A456',
+					dark: '#D47428'
+				},
+				stone: {
+					DEFAULT: '#D0C9BF',
+					light: '#E5DED4',
+					dark: '#ABA497'
 				}
 			},
 			borderRadius: {
@@ -89,6 +111,9 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			backgroundImage: {
+				'hero-pattern': "url('https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=1470&auto=format')",
 			}
 		}
 	},
