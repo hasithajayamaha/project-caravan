@@ -1,77 +1,72 @@
 
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, MapPin, Mail, Heart } from 'lucide-react';
-import { Button } from './ui/button';
+import { Facebook, Twitter, Instagram, Mail, Phone } from 'lucide-react';
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-forest text-white">
-      <div className="container mx-auto px-4 py-12">
+    <footer className="bg-gray-900 text-white">
+      <div className="container mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-1">
-            <h3 className="text-xl font-bold mb-4">Caravan Trails</h3>
-            <p className="text-stone-light mb-4">
-              Discover the most beautiful hiking trails around the world with our 
-              comprehensive guides and community reviews.
+          <div>
+            <h3 className="text-xl font-bold mb-4">CarRento</h3>
+            <p className="text-gray-400">
+              Long-term car rental platform for both owners and customers. Minimum rental period of 2 weeks with preferred 3+ month durations.
             </p>
+          </div>
+          
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+            <ul className="space-y-2">
+              <li><Link to="/" className="text-gray-400 hover:text-white">Home</Link></li>
+              <li><Link to="/cars" className="text-gray-400 hover:text-white">Browse Cars</Link></li>
+              <li><Link to="/about" className="text-gray-400 hover:text-white">About Us</Link></li>
+              <li><Link to="/contact" className="text-gray-400 hover:text-white">Contact</Link></li>
+              <li><Link to="/faq" className="text-gray-400 hover:text-white">FAQ</Link></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Car Owners</h4>
+            <ul className="space-y-2">
+              <li><Link to="/list-your-car" className="text-gray-400 hover:text-white">List Your Car</Link></li>
+              <li><Link to="/owner-guidelines" className="text-gray-400 hover:text-white">Owner Guidelines</Link></li>
+              <li><Link to="/maintenance" className="text-gray-400 hover:text-white">Maintenance Services</Link></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2">
+                <Phone size={16} />
+                <span className="text-gray-400">+1 (555) 123-4567</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Mail size={16} />
+                <span className="text-gray-400">support@carrento.com</span>
+              </li>
+            </ul>
+            
+            <h4 className="text-lg font-semibold mt-6 mb-4">Follow Us</h4>
             <div className="flex space-x-4">
-              <a href="#" className="text-stone hover:text-stone-light transition-colors">
+              <a href="#" className="text-gray-400 hover:text-white">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="text-stone hover:text-stone-light transition-colors">
+              <a href="#" className="text-gray-400 hover:text-white">
                 <Twitter size={20} />
               </a>
-              <a href="#" className="text-stone hover:text-stone-light transition-colors">
+              <a href="#" className="text-gray-400 hover:text-white">
                 <Instagram size={20} />
               </a>
             </div>
           </div>
-          
-          <div className="md:col-span-1">
-            <h4 className="font-bold text-lg mb-4">Explore</h4>
-            <ul className="space-y-2">
-              <li><Link to="/discover" className="hover:text-stone-light transition-colors">Discover Trails</Link></li>
-              <li><Link to="/guides" className="hover:text-stone-light transition-colors">Hiking Guides</Link></li>
-              <li><Link to="/map" className="hover:text-stone-light transition-colors">Trail Map</Link></li>
-              <li><Link to="/community" className="hover:text-stone-light transition-colors">Community</Link></li>
-            </ul>
-          </div>
-          
-          <div className="md:col-span-1">
-            <h4 className="font-bold text-lg mb-4">Company</h4>
-            <ul className="space-y-2">
-              <li><Link to="/about" className="hover:text-stone-light transition-colors">About Us</Link></li>
-              <li><Link to="/careers" className="hover:text-stone-light transition-colors">Careers</Link></li>
-              <li><Link to="/contact" className="hover:text-stone-light transition-colors">Contact</Link></li>
-              <li><Link to="/faq" className="hover:text-stone-light transition-colors">FAQ</Link></li>
-            </ul>
-          </div>
-          
-          <div className="md:col-span-1">
-            <h4 className="font-bold text-lg mb-4">Stay Updated</h4>
-            <p className="mb-4">Subscribe to receive news and updates about new trails.</p>
-            <div className="flex">
-              <input 
-                type="email" 
-                placeholder="Your email" 
-                className="rounded-l-md px-4 py-2 w-full text-foreground focus:outline-none"
-              />
-              <Button className="rounded-l-none bg-sunset hover:bg-sunset-light">
-                Subscribe
-              </Button>
-            </div>
-          </div>
         </div>
         
-        <div className="mt-12 pt-6 border-t border-forest-light text-sm text-center md:flex md:justify-between md:text-left">
-          <div className="mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} Caravan Trails. All rights reserved.
-          </div>
-          <div className="space-x-4">
-            <Link to="/privacy" className="hover:text-stone-light transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-stone-light transition-colors">Terms of Service</Link>
-            <Link to="/cookies" className="hover:text-stone-light transition-colors">Cookie Policy</Link>
-          </div>
+        <div className="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500">
+          <p>&copy; {currentYear} CarRento. All rights reserved.</p>
         </div>
       </div>
     </footer>
