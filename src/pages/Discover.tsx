@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MapPin, Search, Filter, Car, Mountain, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,9 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TrailCard from '@/components/TrailCard';
+import TrailTypeBadge from '@/components/TrailTypeBadge';
 import { trails } from '@/data/trails';
+import { formatDistanceToMetric } from '@/lib/format';
 
 const Discover = () => {
   const [searchQuery, setSearchQuery] = useState('');
