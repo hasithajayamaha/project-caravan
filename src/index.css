@@ -140,4 +140,21 @@
   .difficulty-badge-hard {
     @apply bg-red-500 text-white;
   }
+  
+  /* 4x4 Trail specific styles */
+  .vehicle-requirements {
+    @apply bg-forest/5 rounded-lg p-4 border border-forest/10 text-sm mt-4;
+  }
+  
+  .trail-type-badge-hiking {
+    @apply bg-green-500 text-white;
+  }
+  
+  .trail-type-badge-4x4 {
+    @apply bg-earth text-white;
+  }
+  
+  .trail-type-badge-mixed {
+    @apply bg-sunset text-white;
+  }
 }

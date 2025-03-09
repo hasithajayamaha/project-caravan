@@ -1,18 +1,27 @@
 
-import { useParams, Link } from 'react-router-dom';
-import { MapPin, Star, ArrowLeft, Clock, TrendingUp, Map, Download, Share2, Bookmark, ThumbsUp, MessageSquare } from 'lucide-react';
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import { MapPin, Clock, Mountain, ArrowLeft, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getTrailById, Trail, trails } from '@/data/trails';
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { getTrailById } from '@/data/trails';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TrailCard from '@/components/TrailCard';
-import { formatDuration, formatDistanceToMetric, formatElevation } from '@/lib/format';
+import TrailTypeBadge from '@/components/TrailTypeBadge';
+import VehicleRequirements from '@/components/VehicleRequirements';
+import { formatDuration, formatDistanceToMetric, formatElevation, formatRating } from '@/lib/format';
 
 const TrailDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const trail = getTrailById(id ? parseInt(id) : 0);
+  const trail = getTrailById(Number(id));
   
   if (!trail) {
     return (
@@ -20,11 +29,11 @@ const TrailDetail = () => {
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Trail Not Found</h2>
-            <p className="mb-4">We couldn't find the trail you're looking for.</p>
-            <Button asChild>
-              <Link to="/">Back to Home</Link>
-            </Button>
+            <h1 className="text-3xl font-bold mb-4">Trail Not Found</h1>
+            <p className="mb-6">Sorry, we couldn't find the trail you're looking for.</p>
+            <Link to="/discover">
+              <Button>View All Trails</Button>
+            </Link>
           </div>
         </main>
         <Footer />
@@ -32,344 +41,175 @@ const TrailDetail = () => {
     );
   }
   
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 'bg-green-500 hover:bg-green-600';
-      case 'moderate':
-        return 'bg-sunset hover:bg-sunset-dark';
-      case 'hard':
-        return 'bg-red-500 hover:bg-red-600';
-      default:
-        return 'bg-gray-500 hover:bg-gray-600';
-    }
-  };
-  
-  const relatedTrails = trails
-    .filter(t => t.id !== trail.id)
-    .slice(0, 3);
+  const difficultyClass = {
+    easy: 'difficulty-badge-easy',
+    moderate: 'difficulty-badge-moderate',
+    hard: 'difficulty-badge-hard'
+  }[trail.difficulty];
   
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-1">
-        {/* Hero Banner */}
-        <div className="relative h-[50vh] bg-cover bg-center" style={{ backgroundImage: `url(${trail.imageUrl})` }}>
-          <div className="absolute inset-0 bg-black/40"></div>
-          <div className="container mx-auto px-4 h-full flex flex-col justify-end pb-8">
-            <Link to="/" className="relative z-10 text-white mb-4 inline-flex items-center">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Trails
-            </Link>
-            <div className="relative z-10 text-white">
-              <div className="flex items-center space-x-3 mb-3">
-                <Badge className={`${getDifficultyColor(trail.difficulty)}`}>
+        <div className="relative h-[50vh] min-h-[400px]">
+          <div 
+            className="absolute inset-0 bg-cover bg-center" 
+            style={{ backgroundImage: `url(${trail.imageUrl})` }}
+          />
+          <div className="hero-overlay" />
+          
+          <div className="absolute bottom-0 left-0 w-full p-6 md:p-10">
+            <div className="container mx-auto">
+              <Link to="/discover" className="inline-flex items-center text-white mb-4 hover:underline">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Trails
+              </Link>
+              
+              <div className="flex flex-wrap gap-2 mb-3">
+                <Badge className={difficultyClass}>
                   {trail.difficulty.charAt(0).toUpperCase() + trail.difficulty.slice(1)}
                 </Badge>
-                <div className="flex items-center">
-                  <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                  <span className="text-sm ml-1">{trail.reviews.rating}</span>
-                  <span className="text-xs text-stone-light ml-1">({trail.reviews.count} reviews)</span>
-                </div>
-              </div>
-              <h1 className="text-4xl font-bold mb-2">{trail.name}</h1>
-              <div className="flex items-center text-stone-light">
-                <MapPin className="h-5 w-5 mr-1" />
-                <span>{trail.location}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Trail Stats */}
-        <div className="bg-background shadow-sm border-b">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 py-4">
-              <div className="p-4 flex flex-col items-center border-r">
-                <span className="text-sm text-muted-foreground">Length</span>
-                <span className="text-xl font-bold">{formatDistanceToMetric(trail.length)}</span>
-              </div>
-              <div className="p-4 flex flex-col items-center md:border-r">
-                <span className="text-sm text-muted-foreground">Duration</span>
-                <span className="text-xl font-bold">{formatDuration(trail.duration)}</span>
-              </div>
-              <div className="p-4 flex flex-col items-center border-r">
-                <span className="text-sm text-muted-foreground">Elevation Gain</span>
-                <span className="text-xl font-bold">{formatElevation(trail.elevationGain)}</span>
-              </div>
-              <div className="p-4 flex flex-col items-center">
-                <span className="text-sm text-muted-foreground">Route Type</span>
-                <span className="text-xl font-bold">Loop</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Trail Details */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Main Content */}
-            <div className="lg:w-2/3">
-              <Tabs defaultValue="overview">
-                <TabsList className="mb-6">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                  <TabsTrigger value="photos">Photos</TabsTrigger>
-                  <TabsTrigger value="directions">Directions</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="overview" className="space-y-6">
-                  <div className="bg-white p-6 rounded-lg border">
-                    <h2 className="text-2xl font-bold mb-4">Trail Overview</h2>
-                    <p className="text-muted-foreground mb-4">{trail.description}</p>
-                    <p className="text-muted-foreground mb-4">
-                      This trail is best used from April through October. During winter months, snow may cover parts of the trail, making navigation difficult. Always check weather conditions before heading out.
-                    </p>
-                    
-                    <h3 className="text-xl font-bold mt-6 mb-3">Features</h3>
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {trail.tags.map((tag, index) => (
-                        <Badge key={index} variant="outline" className="bg-muted text-sm">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    <h3 className="text-xl font-bold mt-6 mb-3">Trail Map</h3>
-                    <div className="bg-muted h-[300px] rounded-lg flex items-center justify-center mb-4">
-                      <Map className="h-8 w-8 text-muted-foreground" />
-                      <span className="ml-2 text-muted-foreground">Interactive map view</span>
-                    </div>
-                    
-                    <div className="flex space-x-4">
-                      <Button className="bg-forest hover:bg-forest-light">
-                        <Map className="mr-2 h-4 w-4" />
-                        View Fullscreen
-                      </Button>
-                      <Button variant="outline">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download GPX
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white p-6 rounded-lg border">
-                    <h2 className="text-2xl font-bold mb-4">Getting There</h2>
-                    <p className="text-muted-foreground mb-4">
-                      The trailhead is located at the north entrance of the park. There's a parking lot available with facilities, including restrooms and a water fountain. The parking fee is $5 per vehicle.
-                    </p>
-                    <Button>Get Directions</Button>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="reviews">
-                  <div className="bg-white p-6 rounded-lg border">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">Reviews & Ratings</h2>
-                      <Button>Write a Review</Button>
-                    </div>
-                    
-                    <div className="flex items-center mb-8">
-                      <div className="text-4xl font-bold mr-4">{trail.reviews.rating}</div>
-                      <div>
-                        <div className="flex mb-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star 
-                              key={star} 
-                              className={`h-5 w-5 ${star <= Math.round(trail.reviews.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} 
-                            />
-                          ))}
-                        </div>
-                        <div className="text-sm text-muted-foreground">Based on {trail.reviews.count} reviews</div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-6">
-                      {/* Sample reviews - in a real app, these would come from a database */}
-                      <div className="border-b pb-6">
-                        <div className="flex justify-between mb-2">
-                          <h4 className="font-bold">Jennifer M.</h4>
-                          <div className="flex">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star 
-                                key={star} 
-                                className={`h-4 w-4 ${star <= 5 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} 
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">Hiked on June 12, 2023</div>
-                        <p>Absolutely stunning views! The trail was well-maintained and clearly marked. Saw plenty of wildlife and the alpine meadows were in full bloom. Highly recommend for anyone looking for a moderate challenge with rewarding scenery.</p>
-                        <div className="flex mt-3 text-sm text-muted-foreground">
-                          <button className="flex items-center mr-4">
-                            <ThumbsUp className="h-4 w-4 mr-1" />
-                            Helpful (24)
-                          </button>
-                          <button className="flex items-center">
-                            <MessageSquare className="h-4 w-4 mr-1" />
-                            Reply
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="border-b pb-6">
-                        <div className="flex justify-between mb-2">
-                          <h4 className="font-bold">Marcus T.</h4>
-                          <div className="flex">
-                            {[1, 2, 3, 4].map((star) => (
-                              <Star 
-                                key={star} 
-                                className={`h-4 w-4 ${star <= 4 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} 
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">Hiked on May 28, 2023</div>
-                        <p>Great trail with beautiful scenery. Lost one star because parts of the trail were muddy and slippery after recent rain. Would recommend proper hiking boots, especially for the steeper sections.</p>
-                        <div className="flex mt-3 text-sm text-muted-foreground">
-                          <button className="flex items-center mr-4">
-                            <ThumbsUp className="h-4 w-4 mr-1" />
-                            Helpful (16)
-                          </button>
-                          <button className="flex items-center">
-                            <MessageSquare className="h-4 w-4 mr-1" />
-                            Reply
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <Button variant="outline" className="w-full">Load More Reviews</Button>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="photos">
-                  <div className="bg-white p-6 rounded-lg border">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-2xl font-bold">Trail Photos</h2>
-                      <Button>Upload Photos</Button>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      <img src={trail.imageUrl} alt="Trail view" className="rounded-lg aspect-square object-cover" />
-                      <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=1470&auto=format" alt="Trail view" className="rounded-lg aspect-square object-cover" />
-                      <img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1470&auto=format" alt="Trail view" className="rounded-lg aspect-square object-cover" />
-                      <img src="https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?q=80&w=1476&auto=format" alt="Trail view" className="rounded-lg aspect-square object-cover" />
-                      <img src="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?q=80&w=1470&auto=format" alt="Trail view" className="rounded-lg aspect-square object-cover" />
-                      <div className="rounded-lg aspect-square bg-muted flex items-center justify-center">
-                        <Button variant="ghost">View All Photos</Button>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="directions">
-                  <div className="bg-white p-6 rounded-lg border">
-                    <h2 className="text-2xl font-bold mb-4">Directions to Trailhead</h2>
-                    <div className="bg-muted h-[300px] rounded-lg flex items-center justify-center mb-6">
-                      <Map className="h-8 w-8 text-muted-foreground" />
-                      <span className="ml-2 text-muted-foreground">Interactive directions map</span>
-                    </div>
-                    
-                    <h3 className="text-xl font-bold mb-3">Address</h3>
-                    <p className="text-muted-foreground mb-6">
-                      {trail.name} Trailhead<br />
-                      {trail.location}
-                    </p>
-                    
-                    <h3 className="text-xl font-bold mb-3">Driving Directions</h3>
-                    <p className="text-muted-foreground mb-6">
-                      From the park entrance, follow the main road for 2.5 miles until you reach the North Visitor Center. The trailhead parking lot is located behind the visitor center. Follow signs for {trail.name}.
-                    </p>
-                    
-                    <Button className="bg-forest hover:bg-forest-light mr-4">
-                      Get Directions
-                    </Button>
-                    <Button variant="outline">
-                      Share Location
-                    </Button>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </div>
-            
-            {/* Sidebar */}
-            <div className="lg:w-1/3 space-y-6">
-              <div className="bg-white p-6 rounded-lg border">
-                <div className="flex space-x-2 mb-6">
-                  <Button className="flex-1 bg-forest hover:bg-forest-light">
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Start Hike
-                  </Button>
-                  <Button variant="outline" className="w-10 p-0 flex items-center justify-center">
-                    <Bookmark className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" className="w-10 p-0 flex items-center justify-center">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <h3 className="font-bold mb-3">Best Times to Visit</h3>
-                <div className="grid grid-cols-4 gap-2 mb-6">
-                  {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month, index) => (
-                    <div 
-                      key={month} 
-                      className={`text-center py-2 rounded ${index >= 3 && index <= 9 ? 'bg-forest/10 text-forest' : 'bg-muted text-muted-foreground'}`}
-                    >
-                      {month}
-                    </div>
-                  ))}
-                </div>
-                
-                <h3 className="font-bold mb-3">Weather</h3>
-                <div className="bg-muted p-4 rounded-lg mb-6">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-sm text-muted-foreground">Current</div>
-                      <div className="text-2xl font-bold">72°F</div>
-                    </div>
-                    <div className="text-5xl">☀️</div>
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-2">Clear skies, light breeze</div>
-                </div>
-                
-                <h3 className="font-bold mb-3">Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {trail.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline" className="bg-muted">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
+                <TrailTypeBadge trailType={trail.trailType} className="bg-white/20 backdrop-blur-sm" />
               </div>
               
-              <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-bold text-lg mb-4">Similar Trails</h3>
-                <div className="space-y-4">
-                  {relatedTrails.map(relatedTrail => (
-                    <Link 
-                      key={relatedTrail.id} 
-                      to={`/trail/${relatedTrail.id}`}
-                      className="flex items-center border-b pb-4 last:border-0 last:pb-0 hover:bg-muted/50 p-2 rounded-lg -mx-2"
-                    >
-                      <img 
-                        src={relatedTrail.imageUrl} 
-                        alt={relatedTrail.name} 
-                        className="w-16 h-16 object-cover rounded-md mr-3" 
-                      />
-                      <div>
-                        <h4 className="font-medium">{relatedTrail.name}</h4>
-                        <div className="text-sm text-muted-foreground">{formatDistanceToMetric(relatedTrail.length)} • {relatedTrail.difficulty}</div>
-                        <div className="flex items-center text-sm">
-                          <Star className="h-3 w-3 text-yellow-400 fill-yellow-400 mr-1" />
-                          <span>{relatedTrail.reviews.rating}</span>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+              <h1 className="text-white text-4xl md:text-5xl font-bold mb-2">{trail.name}</h1>
+              
+              <div className="flex items-center text-white/90 mb-4">
+                <MapPin className="h-5 w-5 mr-2" />
+                <span className="text-lg">{trail.location}</span>
               </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="bg-white dark:bg-black/20 rounded-lg shadow-sm p-6 mb-8">
+                <h2 className="text-2xl font-bold mb-4">Trail Description</h2>
+                <p className="mb-6 text-muted-foreground">{trail.description}</p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <Mountain className="h-5 w-5 text-forest mr-2" />
+                      <span className="font-semibold">Elevation</span>
+                    </div>
+                    <p className="text-xl font-bold">{formatElevation(trail.elevationGain)}</p>
+                  </div>
+                  
+                  <div className="p-4 bg-muted rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <Clock className="h-5 w-5 text-forest mr-2" />
+                      <span className="font-semibold">Duration</span>
+                    </div>
+                    <p className="text-xl font-bold">{formatDuration(trail.duration)}</p>
+                  </div>
+                  
+                  <div className="p-4 bg-muted rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-forest mr-2">
+                        <path d="M18 6H5L2 9h20l-3-3Z"></path>
+                        <path d="M2 9v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9"></path>
+                        <path d="M4 14h16"></path>
+                      </svg>
+                      <span className="font-semibold">Distance</span>
+                    </div>
+                    <p className="text-xl font-bold">{formatDistanceToMetric(trail.length)}</p>
+                  </div>
+                  
+                  <div className="p-4 bg-muted rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <Star className="h-5 w-5 text-forest mr-2" />
+                      <span className="font-semibold">Rating</span>
+                    </div>
+                    <p className="text-xl font-bold">{formatRating(trail.reviews.rating)} <span className="text-sm font-normal text-muted-foreground">({trail.reviews.count})</span></p>
+                  </div>
+                </div>
+                
+                <Button className="bg-forest hover:bg-forest-light text-white w-full sm:w-auto">
+                  Start Navigation
+                </Button>
+              </div>
+              
+              {trail.vehicleRequirements && (
+                <div className="mb-8">
+                  <VehicleRequirements requirements={trail.vehicleRequirements} />
+                </div>
+              )}
+              
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-4">Trail Map</h2>
+                <Card>
+                  <CardContent className="p-0">
+                    <div className="relative h-[400px] bg-muted rounded-lg flex items-center justify-center">
+                      <p className="text-muted-foreground">Trail map coming soon</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+            
+            <div>
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>Weather</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center text-muted-foreground">
+                    <p>Weather information coming soon</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>Trail Tags</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {trail.tags.map((tag) => (
+                      <Badge key={tag} variant="outline" className="capitalize">
+                        {tag.replace(/-/g, ' ')}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Share This Trail</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-center space-x-4">
+                    <Button variant="outline" size="icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                      </svg>
+                    </Button>
+                    <Button variant="outline" size="icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                        <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+                      </svg>
+                    </Button>
+                    <Button variant="outline" size="icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                        <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                      </svg>
+                    </Button>
+                    <Button variant="outline" size="icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                      </svg>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

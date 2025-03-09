@@ -1,94 +1,68 @@
 
+import React from 'react';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Clock, Mountain } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Clock, ArrowRight } from 'lucide-react';
 import { Trail } from '@/data/trails';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { formatDuration } from '@/lib/format';
+import { formatDuration, formatDistanceToMetric } from '@/lib/format';
+import TrailTypeBadge from './TrailTypeBadge';
 
 interface TrailCardProps {
   trail: Trail;
-  featured?: boolean;
 }
 
-export const TrailCard = ({ trail, featured = false }: TrailCardProps) => {
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 'bg-green-500 hover:bg-green-600';
-      case 'moderate':
-        return 'bg-sunset hover:bg-sunset-dark';
-      case 'hard':
-        return 'bg-red-500 hover:bg-red-600';
-      default:
-        return 'bg-gray-500 hover:bg-gray-600';
-    }
-  };
+const TrailCard = ({ trail }: TrailCardProps) => {
+  const difficultyClass = {
+    easy: 'difficulty-badge-easy',
+    moderate: 'difficulty-badge-moderate',
+    hard: 'difficulty-badge-hard'
+  }[trail.difficulty];
 
   return (
-    <div className={`trail-card ${featured ? 'md:col-span-2 md:row-span-2' : ''}`}>
-      <div className="relative h-full">
-        <img 
-          src={trail.imageUrl} 
-          alt={trail.name} 
-          className={`trail-card-image ${featured ? 'md:h-80' : 'h-48'}`}
+    <Link to={`/trail/${trail.id}`} className="trail-card">
+      <Card className="h-full border-0 shadow-sm overflow-hidden">
+        <img
+          src={trail.imageUrl}
+          alt={trail.name}
+          className="trail-card-image"
         />
-        
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center">
-              <Badge className={`${getDifficultyColor(trail.difficulty)}`}>
-                {trail.difficulty.charAt(0).toUpperCase() + trail.difficulty.slice(1)}
-              </Badge>
-              <div className="flex items-center ml-2">
-                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                <span className="text-sm ml-1">{trail.reviews.rating}</span>
-                <span className="text-xs text-muted-foreground ml-1">({trail.reviews.count})</span>
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start mb-2">
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2 items-center">
+                <Badge className={difficultyClass}>
+                  {trail.difficulty.charAt(0).toUpperCase() + trail.difficulty.slice(1)}
+                </Badge>
+                <TrailTypeBadge trailType={trail.trailType} />
               </div>
+              <h3 className="text-lg font-bold leading-tight">{trail.name}</h3>
             </div>
-            <div className="text-sm flex items-center text-muted-foreground">
-              <Clock className="h-4 w-4 mr-1" />
-              {formatDuration(trail.duration)}
+            <div className="text-right">
+              <div className="text-sm font-semibold text-forest">{formatDistanceToMetric(trail.length)}</div>
             </div>
           </div>
-          
-          <h3 className={`font-bold mb-1 ${featured ? 'text-xl' : 'text-lg'}`}>{trail.name}</h3>
-          
           <div className="flex items-center text-sm text-muted-foreground mb-2">
-            <MapPin className="h-4 w-4 mr-1" />
+            <MapPin className="h-4 w-4 mr-1 text-forest" />
             <span>{trail.location}</span>
           </div>
-          
-          {featured && (
-            <p className="text-muted-foreground mb-4 line-clamp-2">
-              {trail.description}
-            </p>
-          )}
-          
-          <div className="flex flex-wrap gap-2 mb-4">
-            {trail.tags.slice(0, featured ? 4 : 2).map((tag, index) => (
-              <Badge key={index} variant="outline" className="bg-muted text-xs">
-                {tag}
-              </Badge>
-            ))}
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Clock className="h-4 w-4 mr-1 text-forest" />
+            <span>{formatDuration(trail.duration)}</span>
+            <Mountain className="h-4 w-4 ml-3 mr-1 text-forest" />
+            <span>{trail.elevationGain}m gain</span>
           </div>
-          
-          <div className="flex justify-between items-center">
-            <div>
-              <span className="text-sm font-medium">{trail.length} km</span>
-              <span className="mx-2 text-muted-foreground">•</span>
-              <span className="text-sm text-muted-foreground">{trail.elevationGain}m gain</span>
+        </CardContent>
+        <CardFooter className="px-4 pb-4 pt-0 flex justify-between">
+          <div className="flex items-center">
+            <div className="text-sm">
+              <span className="font-bold text-forest">{trail.reviews.rating}</span>
+              <span className="text-muted-foreground"> ({trail.reviews.count} reviews)</span>
             </div>
-            <Link to={`/trail/${trail.id}`}>
-              <Button size="sm" variant="ghost" className="text-forest hover:text-forest-light">
-                View Trail
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
-            </Link>
           </div>
-        </div>
-      </div>
-    </div>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 };
 

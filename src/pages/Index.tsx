@@ -1,18 +1,36 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Search, Filter, ChevronRight } from 'lucide-react';
+import { MapPin, Search, Filter, ChevronRight, Car, Mountain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TrailCard from '@/components/TrailCard';
 import FeaturedTrail from '@/components/FeaturedTrail';
-import { trails, getFeaturedTrails } from '@/data/trails';
+import { trails, getFeaturedTrails, getTrailsByType } from '@/data/trails';
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'all' | 'hiking' | '4x4'>('all');
   const featuredTrails = getFeaturedTrails();
+  
+  // Get a mix of featured trails, ensuring at least one 4x4 trail
+  const hikingFeatured = featuredTrails.filter(trail => trail.trailType === 'hiking')[0];
+  const fourByFourFeatured = featuredTrails.filter(trail => trail.trailType === '4x4')[0];
+  
+  // Select which featured trail to display
+  const featuredTrail = fourByFourFeatured || hikingFeatured;
+  
+  // Get popular trails based on active tab
+  const getFilteredTrails = () => {
+    if (activeTab === 'all') {
+      return trails.slice(0, 6);
+    } else {
+      return getTrailsByType(activeTab === 'hiking' ? 'hiking' : '4x4').slice(0, 6);
+    }
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -22,7 +40,7 @@ const Index = () => {
         {/* Hero Section */}
         <section className="pt-8 pb-16 px-4 sm:px-6 lg:px-8">
           <div className="container mx-auto">
-            <FeaturedTrail trail={featuredTrails[0]} />
+            <FeaturedTrail trail={featuredTrail} />
           </div>
         </section>
         
@@ -52,6 +70,14 @@ const Index = () => {
                   <MapPin className="h-4 w-4 mr-1" />
                   Near Me
                 </Button>
+                <Button variant="outline" size="sm" className="rounded-full">
+                  <Mountain className="h-4 w-4 mr-1" />
+                  Hiking
+                </Button>
+                <Button variant="outline" size="sm" className="rounded-full">
+                  <Car className="h-4 w-4 mr-1" />
+                  4x4 Trails
+                </Button>
                 {['Easy Trails', 'Dog Friendly', 'Waterfalls', 'Mountain Views', 'Family Friendly'].map((tag) => (
                   <Button key={tag} variant="outline" size="sm" className="rounded-full">
                     {tag}
@@ -72,8 +98,23 @@ const Index = () => {
                 <ChevronRight className="h-5 w-5 ml-1" />
               </Link>
             </div>
+            
+            <Tabs defaultValue="all" className="mb-8" onValueChange={(value) => setActiveTab(value as any)}>
+              <TabsList className="grid w-full max-w-md grid-cols-3">
+                <TabsTrigger value="all">All Trails</TabsTrigger>
+                <TabsTrigger value="hiking" className="flex items-center justify-center">
+                  <Mountain className="h-4 w-4 mr-2" />
+                  Hiking
+                </TabsTrigger>
+                <TabsTrigger value="4x4" className="flex items-center justify-center">
+                  <Car className="h-4 w-4 mr-2" />
+                  4x4
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {trails.slice(0, 6).map((trail) => (
+              {getFilteredTrails().map((trail) => (
                 <TrailCard key={trail.id} trail={trail} />
               ))}
             </div>
@@ -91,7 +132,7 @@ const Index = () => {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Discover Trails</h3>
                 <p className="text-muted-foreground">
-                  Explore thousands of hiking trails with detailed maps, photos, and reviews from our community.
+                  Explore thousands of hiking and 4x4 trails with detailed maps, photos, and reviews from our community.
                 </p>
               </div>
               <div className="bg-background p-6 rounded-lg shadow-sm">
@@ -101,9 +142,9 @@ const Index = () => {
                     <circle cx="17" cy="7" r="5"></circle>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2">Track Your Hikes</h3>
+                <h3 className="text-xl font-bold mb-2">Track Your Adventures</h3>
                 <p className="text-muted-foreground">
-                  Record your adventures, share your experiences, and keep track of all the trails you've conquered.
+                  Record your trips, share your experiences, and keep track of all the trails you've conquered, whether on foot or by 4x4.
                 </p>
               </div>
               <div className="bg-background p-6 rounded-lg shadow-sm">
@@ -117,7 +158,7 @@ const Index = () => {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Detailed Guides</h3>
                 <p className="text-muted-foreground">
-                  Access expert tips, seasonal information, and local insights to make the most of your hiking experience.
+                  Access expert tips, vehicle requirements, seasonal information, and local insights to make the most of your outdoor adventures.
                 </p>
               </div>
             </div>
@@ -129,7 +170,7 @@ const Index = () => {
           <div className="container mx-auto text-center">
             <h2 className="text-3xl font-bold mb-4">Ready to Start Your Adventure?</h2>
             <p className="text-lg text-stone-light max-w-2xl mx-auto mb-8">
-              Join thousands of hikers discovering new trails, sharing experiences, and planning their next outdoor adventure.
+              Join thousands of outdoor enthusiasts discovering new trails, sharing experiences, and planning their next adventure on foot or by 4x4.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button size="lg" className="bg-white text-forest hover:bg-stone">
