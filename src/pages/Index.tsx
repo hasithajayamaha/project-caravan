@@ -1,246 +1,150 @@
 
-import React from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check, Calendar, Shield, Tool, CreditCard } from 'lucide-react';
+import { MapPin, Search, Filter, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Layout from '@/components/Layout';
-import { cars } from '@/data/cars';
-import CarCard from '@/components/CarCard';
+import { Input } from '@/components/ui/input';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import TrailCard from '@/components/TrailCard';
+import FeaturedTrail from '@/components/FeaturedTrail';
+import { trails, getFeaturedTrails } from '@/data/trails';
 
 const Index = () => {
-  // Get 3 featured cars
-  const featuredCars = cars.slice(0, 3);
-
+  const [searchQuery, setSearchQuery] = useState('');
+  const featuredTrails = getFeaturedTrails();
+  
   return (
-    <Layout>
-      {/* Hero Section */}
-      <section className="relative h-[70vh] flex items-center rounded-lg overflow-hidden mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-black to-transparent z-10"></div>
-        <img 
-          src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
-          alt="Luxury car on the road" 
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="container relative z-20 text-white">
-          <div className="max-w-2xl">
-            <h1 className="text-5xl font-bold mb-4">Your Long-Term Car Rental Solution</h1>
-            <p className="text-xl mb-8">
-              Rent quality vehicles for 2+ weeks with better rates for 3+ month commitments.
-              No hassle, transparent pricing, and full maintenance support.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link to="/cars">
-                <Button size="lg" className="bg-primary hover:bg-primary/90">
-                  Browse Cars
-                  <ArrowRight className="ml-2 h-5 w-5" />
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="pt-8 pb-16 px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto">
+            <FeaturedTrail trail={featuredTrails[0]} />
+          </div>
+        </section>
+        
+        {/* Search Section */}
+        <section className="py-12 px-4 sm:px-6 lg:px-8 bg-muted">
+          <div className="container mx-auto">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl font-bold text-center mb-8">Find Your Next Adventure</h2>
+              <div className="relative flex items-center">
+                <div className="absolute left-4">
+                  <Search className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <Input 
+                  type="text"
+                  placeholder="Search for trails, parks, or locations..."
+                  className="pl-12 py-6 rounded-l-lg rounded-r-none w-full text-lg border-r-0"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Button className="rounded-l-none rounded-r-lg h-[52px] px-6 bg-forest hover:bg-forest-light flex items-center">
+                  <span className="mr-2 hidden sm:inline">Search</span>
+                  <Filter className="h-5 w-5" />
                 </Button>
-              </Link>
-              <Link to="/list-your-car">
-                <Button variant="outline" size="lg" className="bg-white/10 backdrop-blur-sm hover:bg-white/20 border-white/20">
-                  List Your Car
+              </div>
+              <div className="flex flex-wrap justify-center mt-6 gap-2">
+                <Button variant="outline" size="sm" className="rounded-full">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  Near Me
                 </Button>
+                {['Easy Trails', 'Dog Friendly', 'Waterfalls', 'Mountain Views', 'Family Friendly'].map((tag) => (
+                  <Button key={tag} variant="outline" size="sm" className="rounded-full">
+                    {tag}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Popular Trails Section */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-bold">Popular Trails</h2>
+              <Link to="/discover" className="text-forest hover:text-forest-light flex items-center">
+                View All
+                <ChevronRight className="h-5 w-5 ml-1" />
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="mb-20">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">How CarRento Works</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            We simplify long-term car rentals with a straightforward process for both car owners and renters
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calendar className="h-8 w-8 text-primary" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {trails.slice(0, 6).map((trail) => (
+                <TrailCard key={trail.id} trail={trail} />
+              ))}
             </div>
-            <h3 className="text-xl font-bold mb-2">1. Choose Your Car</h3>
-            <p className="text-gray-600">
-              Browse our selection of quality vehicles and select one that fits your needs.
+          </div>
+        </section>
+        
+        {/* Features Section */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12">Why Choose Caravan Trails</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-background p-6 rounded-lg shadow-sm">
+                <div className="h-12 w-12 bg-forest/10 rounded-full flex items-center justify-center mb-4">
+                  <MapPin className="h-6 w-6 text-forest" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Discover Trails</h3>
+                <p className="text-muted-foreground">
+                  Explore thousands of hiking trails with detailed maps, photos, and reviews from our community.
+                </p>
+              </div>
+              <div className="bg-background p-6 rounded-lg shadow-sm">
+                <div className="h-12 w-12 bg-sunset/10 rounded-full flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-sunset">
+                    <path d="m12 8-9.04 9.06a2.82 2.82 0 1 0 3.98 3.98L16 12"></path>
+                    <circle cx="17" cy="7" r="5"></circle>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold mb-2">Track Your Hikes</h3>
+                <p className="text-muted-foreground">
+                  Record your adventures, share your experiences, and keep track of all the trails you've conquered.
+                </p>
+              </div>
+              <div className="bg-background p-6 rounded-lg shadow-sm">
+                <div className="h-12 w-12 bg-earth/10 rounded-full flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-earth">
+                    <path d="M18 8c0 2.5-2 2.5-2 5"></path>
+                    <path d="M18 3a5 5 0 0 1 4 8c-2 3-4 3.5-4 6"></path>
+                    <path d="M18 21v-8"></path>
+                    <path d="M6 16a6 6 0 1 1 12 0v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-2z"></path>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold mb-2">Detailed Guides</h3>
+                <p className="text-muted-foreground">
+                  Access expert tips, seasonal information, and local insights to make the most of your hiking experience.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* CTA Section */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-forest text-white">
+          <div className="container mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-4">Ready to Start Your Adventure?</h2>
+            <p className="text-lg text-stone-light max-w-2xl mx-auto mb-8">
+              Join thousands of hikers discovering new trails, sharing experiences, and planning their next outdoor adventure.
             </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calendar className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">2. Book Your Dates</h3>
-            <p className="text-gray-600">
-              Select your rental period (minimum 2 weeks) and delivery preferences.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CreditCard className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">3. Pay Securely</h3>
-            <p className="text-gray-600">
-              Complete your payment including the $500 refundable deposit.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">4. Enjoy Your Ride</h3>
-            <p className="text-gray-600">
-              Pick up your car or have it delivered and enjoy your long-term rental.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Cars Section */}
-      <section className="mb-20">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">Featured Vehicles</h2>
-          <Link to="/cars" className="text-primary font-semibold flex items-center">
-            View All <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredCars.map(car => (
-            <CarCard 
-              key={car.id}
-              id={car.id}
-              title={car.title}
-              image={car.image}
-              location={car.location}
-              pricePerMonth={car.pricePerMonth}
-              pricePerWeek={car.pricePerWeek}
-              carType={car.carType}
-              year={car.year}
-              availability={`From ${new Date(car.availableFrom).toLocaleDateString()}`}
-              rentalType={car.rentalType}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="mb-20 bg-gray-50 py-16 px-4 rounded-xl">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Why Choose CarRento</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            We offer unique benefits for both car owners and renters
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <Calendar className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Flexible Rental Periods</h3>
-                <p className="text-gray-600">
-                  Choose from short-term (2 weeks to 3 months) or long-term (3+ months) options with better rates for longer commitments.
-                </p>
-              </div>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button size="lg" className="bg-white text-forest hover:bg-stone">
+                Sign Up for Free
+              </Button>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-forest-dark">
+                Explore Trails
+              </Button>
             </div>
           </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <Tool className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Maintenance Included</h3>
-                <p className="text-gray-600">
-                  All maintenance is handled by our service center, ensuring your rental experience is worry-free.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <Shield className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Insurance Coverage</h3>
-                <p className="text-gray-600">
-                  Comprehensive insurance coverage for peace of mind during your rental period.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <CreditCard className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Transparent Pricing</h3>
-                <p className="text-gray-600">
-                  No hidden fees or surprises. Pay only for what you see, with clear pricing structures.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <Check className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Quality Assured</h3>
-                <p className="text-gray-600">
-                  All vehicles undergo rigorous inspection before being listed to ensure top quality.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <ArrowRight className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Delivery Options</h3>
-                <p className="text-gray-600">
-                  Choose between free self-pickup or convenient door-to-door delivery for an additional fee.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="mb-8 bg-primary text-white rounded-lg p-12 text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-        <p className="text-xl mb-8 max-w-3xl mx-auto">
-          Browse our selection of quality vehicles and find the perfect long-term rental for your needs.
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <Link to="/cars">
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-              Browse Cars
-            </Button>
-          </Link>
-          <Link to="/register">
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-              Create Account
-            </Button>
-          </Link>
-        </div>
-      </section>
-    </Layout>
+        </section>
+      </main>
+      
+      <Footer />
+    </div>
   );
 };
 
